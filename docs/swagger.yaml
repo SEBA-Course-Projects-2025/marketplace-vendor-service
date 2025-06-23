@@ -185,7 +185,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8081
+host: marketplace-vendor-service.onrender.com
 info:
   contact: {}
   description: API for managing vendor account.
@@ -689,5 +689,5 @@ paths:
       tags:
       - reviews
 schemes:
-- http
+- https
 swagger: "2.0"
