@@ -21,8 +21,8 @@ import (
 // @version 1.0
 // @description API for managing vendor account.
 
-// @schemes http
-// @host localhost:8081
+// @schemes https
+// @host marketplace-vendor-service.onrender.com
 // @BasePath /api
 func main() {
 
