@@ -72,19 +72,19 @@ func (grr *GormReviewRepository) Create(ctx context.Context, newReply *models.Re
 	return newReply, nil
 }
 
-func (grr *GormReviewRepository) Update(ctx context.Context, updatedReply *models.Reply) error {
+func (grr *GormReviewRepository) Patch(ctx context.Context, updatedReply *models.Reply) (*models.Reply, error) {
 
-	res := grr.db.WithContext(ctx).Save(updatedReply)
+	res := grr.db.WithContext(ctx).Model(&models.Reply{}).Where("id = ?", updatedReply.Id).Updates(updatedReply)
 
 	if res.Error != nil {
-		return error_handler.ErrorHandler(res.Error, "Error updating reply")
+		return nil, error_handler.ErrorHandler(res.Error, "Error updating reply")
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return nil
+	return updatedReply, nil
 
 }
 

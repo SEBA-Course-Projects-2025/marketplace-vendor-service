@@ -12,7 +12,7 @@ func SetUpReviewsRouter(rg *gin.RouterGroup, h *handlers.ReviewHandler) {
 		reviews.POST("/:reviewId/replies", h.PostReplyHandler)
 
 		reviews.GET("/:reviewId", h.GetReviewHandler)
-		reviews.PUT("/:reviewId/replies/:replyId", h.PutReplyHandler)
+		reviews.PATCH("/:reviewId/replies/:replyId", h.PatchReplyHandler)
 
 	}
 }

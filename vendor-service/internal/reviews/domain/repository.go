@@ -12,7 +12,7 @@ type ReviewRepository interface {
 	FindAll(ctx context.Context, params dtos.ReviewQueryParams, vendorId uuid.UUID) ([]models.Review, error)
 	FindById(ctx context.Context, id uuid.UUID, vendorId uuid.UUID) (*models.Review, error)
 	Create(ctx context.Context, newReply *models.Reply) (*models.Reply, error)
-	Update(ctx context.Context, updatedReply *models.Reply) error
+	Patch(ctx context.Context, updatedReply *models.Reply) (*models.Reply, error)
 	Transaction(fn func(txRepo ReviewRepository) error) error
 	WithTx(tx *gorm.DB) ReviewRepository
 }

@@ -8,9 +8,11 @@ import (
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
 )
 
-func PutReply(ctx context.Context, reviewRepo domain.ReviewRepository, comment dtos.CommentDto, replyId uuid.UUID, reviewId uuid.UUID, vendorId uuid.UUID) error {
+func PatchReply(ctx context.Context, reviewRepo domain.ReviewRepository, comment dtos.CommentDto, replyId uuid.UUID, reviewId uuid.UUID, vendorId uuid.UUID) (dtos.PostReplyDto, error) {
 
-	return reviewRepo.Transaction(func(txRepo domain.ReviewRepository) error {
+	var replyResponse dtos.PostReplyDto
+
+	if err := reviewRepo.Transaction(func(txRepo domain.ReviewRepository) error {
 
 		existingReview, err := txRepo.FindById(ctx, reviewId, vendorId)
 
@@ -32,7 +34,19 @@ func PutReply(ctx context.Context, reviewRepo domain.ReviewRepository, comment d
 
 		existingReply.Comment = comment.Comment
 
-		return txRepo.Update(ctx, existingReply)
+		updatedReply, err := txRepo.Patch(ctx, existingReply)
 
-	})
+		if err != nil {
+			return err
+		}
+
+		replyResponse = dtos.PostReplyToReplyDto(updatedReply)
+
+		return nil
+
+	}); err != nil {
+		return dtos.PostReplyDto{}, err
+	}
+
+	return replyResponse, nil
 }

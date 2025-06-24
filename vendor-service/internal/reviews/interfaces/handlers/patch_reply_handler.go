@@ -10,9 +10,9 @@ import (
 	"net/http"
 )
 
-// PutReplyHandler godoc
-// @Summary      Update reply to review
-// @Description  Updates a reply to a specific review for the given vendor.
+// PatchReplyHandler godoc
+// @Summary      Partially update reply to review
+// @Description  Partially updates a reply to a specific review for the given vendor.
 // @Tags         reviews
 // @Accept       json
 // @Produce      json
@@ -20,12 +20,12 @@ import (
 // @Param        reviewId path string true "Review ID (UUID)"
 // @Param        replyId path string true "Reply ID (UUID)"
 // @Param        comment body dtos.CommentDto true "Reply update data"
-// @Success      200 {object} map[string]interface{}
+// @Success      200 {object} dtos.PostReplyDto
 // @Failure      400 {object} map[string]interface{} "Invalid vendorId, reviewId, replyId, or comment data"
 // @Failure      404 {object} map[string]interface{} "Reply not found"
 // @Failure      500 {object} map[string]interface{}
-// @Router       /reviews/{reviewId}/replies/{replyId} [put]
-func (h *ReviewHandler) PutReplyHandler(c *gin.Context) {
+// @Router       /reviews/{reviewId}/replies/{replyId} [patch]
+func (h *ReviewHandler) PatchReplyHandler(c *gin.Context) {
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -59,7 +59,7 @@ func (h *ReviewHandler) PutReplyHandler(c *gin.Context) {
 		return
 	}
 
-	err = services.PutReply(c.Request.Context(), h.ReviewRepo, comment, replyId, reviewId, vendorId)
+	reply, err := services.PatchReply(c.Request.Context(), h.ReviewRepo, comment, replyId, reviewId, vendorId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Reply not found"})
@@ -69,6 +69,6 @@ func (h *ReviewHandler) PutReplyHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, reply)
 
 }
