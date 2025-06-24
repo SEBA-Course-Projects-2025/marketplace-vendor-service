@@ -220,13 +220,26 @@ __Status codes:__
 
 ## 7. Updating Review Reply Comment
 
-__PUT ```api/reviews/:reviewId/replies/:replyId```__
+__PATCH ```api/reviews/:reviewId/replies/:replyId```__
 
 __Body:__
 
 ```json
 {
   "comment": "string"
+}
+```
+
+__Response:__
+
+```json
+{
+  "review_id": "uuid",
+  "reply_id": "uuid",
+  "replier_id": "uuid",
+  "name": "string",
+  "comment": "string",
+  "date": "date"
 }
 ```
 
@@ -299,7 +312,7 @@ __Status codes:__
 
 ## 10. Approve Orders
 
-__PUT ```api/orders/:orderId```__
+__PATCH ```api/orders/:orderId```__
 
 __Body:__
 
@@ -308,6 +321,29 @@ __Body:__
   "status": "string"
 }
 ```
+
+__Response:__
+
+```json
+{
+  "orderId": "uuid",
+  "customerId": "uuid",
+  "items": [
+    {
+      "productId": "uuid",
+      "product_name": "string",
+      "quantity": "int",
+      "image_url": "string",
+      "unit_price": "float64"
+    }
+  ],
+  "totalPrice": "float64",
+  "status": "string",
+  "date": "date"
+}
+```
+
+
 
 __Status codes:__
 - ```200 OK (success)```
