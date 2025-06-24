@@ -10,21 +10,21 @@ import (
 	"net/http"
 )
 
-// PutOrderStatusHandler godoc
-// @Summary      Update order status
-// @Description  Updates the status of an order for the given vendor.
+// PatchOrderStatusHandler godoc
+// @Summary      Partially update order status
+// @Description  Partially updates the status of an order for the given vendor.
 // @Tags         orders
 // @Accept       json
 // @Produce      json
 // @Param        Authorization header string true "Bearer access token"
 // @Param        orderId path string true "Order ID (UUID)"
 // @Param        statusReq body dtos.StatusRequestDto true "Order status update data"
-// @Success      200 {object} map[string]interface{}
+// @Success      200 {object} dtos.OneOrderResponse
 // @Failure      400 {object} map[string]interface{} "Invalid vendorId, orderId, or request body"
 // @Failure      404 {object} map[string]interface{} "Order not found"
 // @Failure      500 {object} map[string]interface{}
-// @Router       /orders/{orderId} [put]
-func (h *OrderHandler) PutOrderStatusHandler(c *gin.Context) {
+// @Router       /orders/{orderId} [patch]
+func (h *OrderHandler) PatchOrderStatusHandler(c *gin.Context) {
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -49,7 +49,8 @@ func (h *OrderHandler) PutOrderStatusHandler(c *gin.Context) {
 		return
 	}
 
-	if err = services.PutOrderStatus(c.Request.Context(), h.OrderRepo, statusReq, orderId, vendorId); err != nil {
+	order, err := services.PatchOrderStatus(c.Request.Context(), h.OrderRepo, statusReq, orderId, vendorId)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
 			return
@@ -58,6 +59,6 @@ func (h *OrderHandler) PutOrderStatusHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	c.JSON(http.StatusOK, order)
 
 }

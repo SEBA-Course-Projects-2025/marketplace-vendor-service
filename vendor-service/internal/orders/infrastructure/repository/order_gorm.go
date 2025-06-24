@@ -63,19 +63,19 @@ func (gor *GormOrderRepository) FindById(ctx context.Context, id uuid.UUID, vend
 	return &order, nil
 }
 
-func (gor *GormOrderRepository) Update(ctx context.Context, updatedOrder *models.Order) error {
+func (gor *GormOrderRepository) Patch(ctx context.Context, updatedOrder *models.Order) (*models.Order, error) {
 
-	res := gor.db.WithContext(ctx).Save(updatedOrder)
+	res := gor.db.WithContext(ctx).Model(&models.Order{}).Where("id = ?", updatedOrder.Id).Updates(updatedOrder)
 
 	if res.Error != nil {
-		return error_handler.ErrorHandler(res.Error, "Error updating order status")
+		return nil, error_handler.ErrorHandler(res.Error, "Error updating order status")
 	}
 
 	if res.RowsAffected == 0 {
-		return gorm.ErrRecordNotFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return nil
+	return updatedOrder, nil
 }
 
 func (gor *GormOrderRepository) WithTx(tx *gorm.DB) domain.OrderRepository {

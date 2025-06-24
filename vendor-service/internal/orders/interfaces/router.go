@@ -11,6 +11,6 @@ func SetUpOrdersRouter(rg *gin.RouterGroup, h *handlers.OrderHandler) {
 		orders.GET("/", h.GetOrdersHandler)
 
 		orders.GET("/:orderId", h.GetOrderByIdHandler)
-		orders.PUT("/:orderId", h.PutOrderStatusHandler)
+		orders.PATCH("/:orderId", h.PatchOrderStatusHandler)
 	}
 }
