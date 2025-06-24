@@ -33,7 +33,7 @@ __Status codes:__
 
 ## 1. Get Vendor Account Information
 
-__GET ```/account```__
+__GET ```api/account```__
 
 __Response:__
 
@@ -60,7 +60,7 @@ __Status codes:__
 
 ## 2. Update Vendor Account Information
 
-__PUT ```/account```__
+__PUT ```api/account```__
 
 __Body:__
 
@@ -85,7 +85,7 @@ __Status codes:__
 
 ## 3. Modify Vendor Account Information
 
-__PATCH ```/account```__
+__PATCH ```api/account```__
 
 __Body:__
 
@@ -124,7 +124,7 @@ __Status codes:__
 
 ## 4. Get Reviews On Products
 
-__GET ```/reviews```__
+__GET ```api/reviews```__
 
 __Response:__
 
@@ -152,7 +152,7 @@ __Status codes:__
 
 ## 5. Get Review On Product
 
-__GET ```/reviews/:reviewId```__
+__GET ```api/reviews/:reviewId```__
 
 __Response:__
 
@@ -188,7 +188,7 @@ __Status codes:__
 
 ## 6. Add a Reply On a Review
 
-__POST ```/reviews/:reviewId/replies```__
+__POST ```api/reviews/:reviewId/replies```__
 
 __Body:__
 
@@ -220,7 +220,7 @@ __Status codes:__
 
 ## 7. Updating Review Reply Comment
 
-__PUT ```/reviews/:reviewId/replies/:replyId```__
+__PUT ```api/reviews/:reviewId/replies/:replyId```__
 
 __Body:__
 
@@ -241,7 +241,7 @@ __Status codes:__
 
 ## 8. Check Orders
 
-__GET ```/orders```__
+__GET ```api/orders```__
 
 __Response:__
 
@@ -266,7 +266,7 @@ __Status codes:__
 
 ## 9. Get One Order
 
-__GET ```/orders/:orderId```__
+__GET ```api/orders/:orderId```__
 
 __Response:__
 
@@ -299,7 +299,7 @@ __Status codes:__
 
 ## 10. Approve Orders
 
-__PUT ```/orders/:orderId```__
+__PUT ```api/orders/:orderId```__
 
 __Body:__
 
