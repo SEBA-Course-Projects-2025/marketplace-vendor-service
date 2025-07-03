@@ -9,7 +9,7 @@ import (
 
 func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, statusReq dtos.StatusRequestDto, id uuid.UUID, vendorId uuid.UUID) (dtos.OneOrderResponse, error) {
 
-	var orderReponse dtos.OneOrderResponse
+	var orderResponse dtos.OneOrderResponse
 
 	if err := orderRepo.Transaction(func(txRepo domain.OrderRepository) error {
 
@@ -27,13 +27,12 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, sta
 			return err
 		}
 
-		orderReponse = dtos.OrderToDto(updatedOrder)
+		orderResponse = dtos.OrderToDto(updatedOrder)
 
 		return nil
 
 	}); err != nil {
 		return dtos.OneOrderResponse{}, err
 	}
-
-	return orderReponse, nil
+	return orderResponse, nil
 }
