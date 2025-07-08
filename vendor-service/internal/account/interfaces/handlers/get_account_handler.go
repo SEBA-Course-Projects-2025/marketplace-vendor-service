@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/account/application/services"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -23,6 +24,9 @@ import (
 // @Router       /account [get]
 func (h *AccountHandler) GetAccountHandler(c *gin.Context) {
 
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "GetAccountHandler")
+	defer span.End()
+
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
 	if !ok {
@@ -30,7 +34,7 @@ func (h *AccountHandler) GetAccountHandler(c *gin.Context) {
 		return
 	}
 
-	account, err := services.GetAccount(c.Request.Context(), h.AccountRepo, vendorId)
+	account, err := services.GetAccount(ctx, h.AccountRepo, vendorId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Account not found"})

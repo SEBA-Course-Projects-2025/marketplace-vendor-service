@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/account/application/services"
 	"marketplace-vendor-service/vendor-service/internal/account/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -23,6 +24,9 @@ import (
 // @Router       /auth/login [post]
 func (h *AccountHandler) LoginAccountHandler(c *gin.Context) {
 
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "LoginAccountHandler")
+	defer span.End()
+
 	var loginReq dtos.LoginRequestDto
 
 	if err := c.ShouldBindJSON(&loginReq); err != nil {
@@ -30,7 +34,7 @@ func (h *AccountHandler) LoginAccountHandler(c *gin.Context) {
 		return
 	}
 
-	token, err := services.LoginAccount(c.Request.Context(), h.AccountRepo, loginReq)
+	token, err := services.LoginAccount(ctx, h.AccountRepo, loginReq)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

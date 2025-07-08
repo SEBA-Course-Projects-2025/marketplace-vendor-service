@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/account/application/services"
 	"marketplace-vendor-service/vendor-service/internal/account/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -25,6 +26,9 @@ import (
 // @Router       /account [patch]
 func (h *AccountHandler) PatchAccountHandler(c *gin.Context) {
 
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "PatchAccountHandler")
+	defer span.End()
+
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
 	if !ok {
@@ -39,7 +43,7 @@ func (h *AccountHandler) PatchAccountHandler(c *gin.Context) {
 		return
 	}
 
-	account, err := services.PatchAccount(c.Request.Context(), h.AccountRepo, accountReq, vendorId)
+	account, err := services.PatchAccount(ctx, h.AccountRepo, accountReq, vendorId)
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
