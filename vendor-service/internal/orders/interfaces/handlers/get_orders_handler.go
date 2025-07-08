@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"marketplace-vendor-service/vendor-service/internal/orders/application/services"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 	"strconv"
 )
@@ -27,6 +28,9 @@ import (
 // @Failure      500 {object} map[string]interface{}
 // @Router       /orders [get]
 func (h *OrderHandler) GetOrdersHandler(c *gin.Context) {
+
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "GetOrdersHandler")
+	defer span.End()
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -74,7 +78,7 @@ func (h *OrderHandler) GetOrdersHandler(c *gin.Context) {
 		SortOrder: sortOrder,
 	}
 
-	orders, err := services.GetOrders(c.Request.Context(), h.OrderRepo, queryParams, vendorId)
+	orders, err := services.GetOrders(ctx, h.OrderRepo, queryParams, vendorId)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

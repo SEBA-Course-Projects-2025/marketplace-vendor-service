@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/orders/application/services"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -24,12 +25,8 @@ import (
 // @Router       /orders/{orderId} [get]
 func (h *OrderHandler) GetOrderByIdHandler(c *gin.Context) {
 
-	v, _ := c.Get("vendorId")
-	vendorId, ok := v.(uuid.UUID)
-	if !ok {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid vendorId"})
-		return
-	}
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "GetOrderByIdHandler")
+	defer span.End()
 
 	orderIdStr := c.Param("orderId")
 
@@ -40,7 +37,7 @@ func (h *OrderHandler) GetOrderByIdHandler(c *gin.Context) {
 		return
 	}
 
-	order, err := services.GetOrderById(c.Request.Context(), h.OrderRepo, orderId, vendorId)
+	order, err := services.GetOrderById(ctx, h.OrderRepo, orderId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})

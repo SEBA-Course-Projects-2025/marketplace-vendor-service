@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/orders/application/services"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -25,6 +26,9 @@ import (
 // @Failure      500 {object} map[string]interface{}
 // @Router       /orders/{orderId} [patch]
 func (h *OrderHandler) PatchOrderStatusHandler(c *gin.Context) {
+
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "PatchOrderStatusHandler")
+	defer span.End()
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -49,7 +53,7 @@ func (h *OrderHandler) PatchOrderStatusHandler(c *gin.Context) {
 		return
 	}
 
-	order, err := services.PatchOrderStatus(c.Request.Context(), h.OrderRepo, statusReq, orderId, vendorId)
+	order, err := services.PatchOrderStatus(ctx, h.OrderRepo, h.EventRepo, h.Db, statusReq, orderId, vendorId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Order not found"})
