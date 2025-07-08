@@ -10,8 +10,9 @@ import (
 
 type OrderRepository interface {
 	FindAll(ctx context.Context, params dtos.OrderQueryParams, vendorId uuid.UUID) ([]models.Order, error)
-	FindById(ctx context.Context, id uuid.UUID, vendorId uuid.UUID) (*models.Order, error)
+	FindById(ctx context.Context, id uuid.UUID) (*models.Order, error)
 	Patch(ctx context.Context, updatedOrder *models.Order) (*models.Order, error)
+	Create(ctx context.Context, newOrder *models.Order, vendorId uuid.UUID) (*models.Order, error)
 	Transaction(fn func(txRepo OrderRepository) error) error
 	WithTx(tx *gorm.DB) OrderRepository
 }
