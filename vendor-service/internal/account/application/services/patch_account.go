@@ -5,9 +5,13 @@ import (
 	"github.com/google/uuid"
 	"marketplace-vendor-service/vendor-service/internal/account/domain"
 	"marketplace-vendor-service/vendor-service/internal/account/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
 func PatchAccount(ctx context.Context, accountRepo domain.AccountRepository, accountReq dtos.AccountPatchRequest, vendorId uuid.UUID) (dtos.AccountResponse, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "PatchAccount")
+	defer span.End()
 
 	var accountResponse dtos.AccountResponse
 
