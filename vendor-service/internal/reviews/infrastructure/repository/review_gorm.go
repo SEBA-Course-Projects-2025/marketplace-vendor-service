@@ -8,6 +8,7 @@ import (
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain"
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain/models"
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 )
 
@@ -20,6 +21,9 @@ func New(db *gorm.DB) *GormReviewRepository {
 }
 
 func (grr *GormReviewRepository) FindAll(ctx context.Context, params dtos.ReviewQueryParams, vendorId uuid.UUID) ([]models.Review, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "FindAll")
+	defer span.End()
 
 	var reviews []models.Review
 
@@ -54,6 +58,9 @@ func (grr *GormReviewRepository) FindAll(ctx context.Context, params dtos.Review
 
 func (grr *GormReviewRepository) FindById(ctx context.Context, id uuid.UUID, vendorId uuid.UUID) (*models.Review, error) {
 
+	ctx, span := tracer.Tracer.Start(ctx, "FindById")
+	defer span.End()
+
 	var review models.Review
 
 	if err := grr.db.WithContext(ctx).Preload("Replies").First(&review, "id = ? AND vendor_id = ?", id, vendorId).Error; err != nil {
@@ -65,6 +72,9 @@ func (grr *GormReviewRepository) FindById(ctx context.Context, id uuid.UUID, ven
 
 func (grr *GormReviewRepository) Create(ctx context.Context, newReply *models.Reply) (*models.Reply, error) {
 
+	ctx, span := tracer.Tracer.Start(ctx, "Create")
+	defer span.End()
+
 	if err := grr.db.WithContext(ctx).Create(newReply).Error; err != nil {
 		return nil, error_handler.ErrorHandler(err, "Error creating new reply")
 	}
@@ -73,6 +83,9 @@ func (grr *GormReviewRepository) Create(ctx context.Context, newReply *models.Re
 }
 
 func (grr *GormReviewRepository) Patch(ctx context.Context, updatedReply *models.Reply) (*models.Reply, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "Patch")
+	defer span.End()
 
 	res := grr.db.WithContext(ctx).Model(&models.Reply{}).Where("id = ?", updatedReply.Id).Updates(updatedReply)
 
