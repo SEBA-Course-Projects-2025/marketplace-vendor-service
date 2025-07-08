@@ -7,9 +7,13 @@ import (
 	accountDomain "marketplace-vendor-service/vendor-service/internal/account/domain"
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain"
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
 func PostReply(ctx context.Context, reviewRepo domain.ReviewRepository, accountRepo accountDomain.AccountRepository, db *gorm.DB, commentReq dtos.CommentDto, vendorId uuid.UUID, reviewId uuid.UUID) (dtos.PostReplyDto, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "PostReply")
+	defer span.End()
 
 	var replyResponse dtos.PostReplyDto
 

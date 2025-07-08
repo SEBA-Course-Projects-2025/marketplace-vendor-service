@@ -6,9 +6,13 @@ import (
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain"
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain/models"
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
 func PatchReply(ctx context.Context, reviewRepo domain.ReviewRepository, comment dtos.CommentDto, replyId uuid.UUID, reviewId uuid.UUID, vendorId uuid.UUID) (dtos.PostReplyDto, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "PatchReply")
+	defer span.End()
 
 	var replyResponse dtos.PostReplyDto
 
