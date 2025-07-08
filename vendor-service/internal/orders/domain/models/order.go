@@ -19,6 +19,7 @@ type Order struct {
 type OrderItem struct {
 	Id          uuid.UUID `json:"id" gorm:"column:id;type:uuid;primaryKey"`
 	ProductId   uuid.UUID `json:"product_id" gorm:"column:product_id;type:uuid;not null"`
+	StockId     uuid.UUID `json:"stock_id" gorm:"column:stock_id;type:uuid;not null"`
 	OrderId     uuid.UUID `json:"order_id" gorm:"column:order_id;type:uuid;not null"`
 	ProductName string    `json:"product_name" gorm:"column:product_name;type:varchar(255);not null"`
 	Quantity    int       `json:"quantity" gorm:"column:quantity;type:int;not null"`
