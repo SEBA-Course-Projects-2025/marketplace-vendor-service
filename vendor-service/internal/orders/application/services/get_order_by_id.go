@@ -5,11 +5,15 @@ import (
 	"github.com/google/uuid"
 	"marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
-func GetOrderById(ctx context.Context, orderRepo domain.OrderRepository, id uuid.UUID, vendorId uuid.UUID) (dtos.OneOrderResponse, error) {
+func GetOrderById(ctx context.Context, orderRepo domain.OrderRepository, id uuid.UUID) (dtos.OneOrderResponse, error) {
 
-	order, err := orderRepo.FindById(ctx, id, vendorId)
+	ctx, span := tracer.Tracer.Start(ctx, "GetOrderById")
+	defer span.End()
+
+	order, err := orderRepo.FindById(ctx, id)
 
 	if err != nil {
 		return dtos.OneOrderResponse{}, err
