@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/reviews/application/services"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -24,6 +25,9 @@ import (
 // @Router       /reviews/{reviewId} [get]
 func (h *ReviewHandler) GetReviewHandler(c *gin.Context) {
 
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "GetReviewHandler")
+	defer span.End()
+
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
 	if !ok {
@@ -40,7 +44,7 @@ func (h *ReviewHandler) GetReviewHandler(c *gin.Context) {
 		return
 	}
 
-	review, err := services.GetReviewById(c.Request.Context(), h.ReviewRepo, reviewId, vendorId)
+	review, err := services.GetReviewById(ctx, h.ReviewRepo, reviewId, vendorId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Review not found"})

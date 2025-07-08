@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/reviews/application/services"
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -26,6 +27,9 @@ import (
 // @Failure      500 {object} map[string]interface{}
 // @Router       /reviews/{reviewId}/replies/{replyId} [patch]
 func (h *ReviewHandler) PatchReplyHandler(c *gin.Context) {
+
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "PatchReplyHandler")
+	defer span.End()
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -59,7 +63,7 @@ func (h *ReviewHandler) PatchReplyHandler(c *gin.Context) {
 		return
 	}
 
-	reply, err := services.PatchReply(c.Request.Context(), h.ReviewRepo, comment, replyId, reviewId, vendorId)
+	reply, err := services.PatchReply(ctx, h.ReviewRepo, comment, replyId, reviewId, vendorId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Reply not found"})

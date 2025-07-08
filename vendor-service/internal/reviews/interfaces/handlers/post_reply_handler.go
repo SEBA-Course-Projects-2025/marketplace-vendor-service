@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"marketplace-vendor-service/vendor-service/internal/reviews/application/services"
 	"marketplace-vendor-service/vendor-service/internal/reviews/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
 
@@ -22,6 +23,9 @@ import (
 // @Failure      500 {object} map[string]interface{}
 // @Router       /reviews/{reviewId}/replies [post]
 func (h *ReviewHandler) PostReplyHandler(c *gin.Context) {
+
+	ctx, span := tracer.Tracer.Start(c.Request.Context(), "PostReplyHandler")
+	defer span.End()
 
 	v, _ := c.Get("vendorId")
 	vendorId, ok := v.(uuid.UUID)
@@ -46,7 +50,7 @@ func (h *ReviewHandler) PostReplyHandler(c *gin.Context) {
 		return
 	}
 
-	newReply, err := services.PostReply(c.Request.Context(), h.ReviewRepo, h.AccountRepo, h.Db, commentReq, vendorId, reviewId)
+	newReply, err := services.PostReply(ctx, h.ReviewRepo, h.AccountRepo, h.Db, commentReq, vendorId, reviewId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
