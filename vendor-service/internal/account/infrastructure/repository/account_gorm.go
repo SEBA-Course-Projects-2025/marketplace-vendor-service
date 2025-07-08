@@ -7,6 +7,7 @@ import (
 	"log"
 	"marketplace-vendor-service/vendor-service/internal/account/domain"
 	"marketplace-vendor-service/vendor-service/internal/account/domain/account_models"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 )
 
@@ -20,6 +21,9 @@ func New(db *gorm.DB) *GormAccountRepository {
 
 func (gar *GormAccountRepository) FindById(ctx context.Context, vendorId uuid.UUID) (*account_models.VendorAccount, error) {
 
+	ctx, span := tracer.Tracer.Start(ctx, "FindById")
+	defer span.End()
+
 	var account account_models.VendorAccount
 
 	if err := gar.db.WithContext(ctx).First(&account, "id = ?", vendorId).Error; err != nil {
@@ -31,6 +35,9 @@ func (gar *GormAccountRepository) FindById(ctx context.Context, vendorId uuid.UU
 
 func (gar *GormAccountRepository) Update(ctx context.Context, updatedAccount *account_models.VendorAccount) error {
 
+	ctx, span := tracer.Tracer.Start(ctx, "Update")
+	defer span.End()
+
 	if err := gar.db.WithContext(ctx).Save(updatedAccount).Error; err != nil {
 		return error_handler.ErrorHandler(err, "Error updating account")
 	}
@@ -41,6 +48,9 @@ func (gar *GormAccountRepository) Update(ctx context.Context, updatedAccount *ac
 
 func (gar *GormAccountRepository) Patch(ctx context.Context, modifiedAccount *account_models.VendorAccount) (*account_models.VendorAccount, error) {
 
+	ctx, span := tracer.Tracer.Start(ctx, "Patch")
+	defer span.End()
+
 	if err := gar.db.WithContext(ctx).Save(modifiedAccount).Error; err != nil {
 		return nil, error_handler.ErrorHandler(err, "Error modifying account")
 	}
@@ -50,6 +60,9 @@ func (gar *GormAccountRepository) Patch(ctx context.Context, modifiedAccount *ac
 }
 
 func (gar *GormAccountRepository) FindByEmail(ctx context.Context, email string) (*account_models.VendorAccount, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "FindByEmail")
+	defer span.End()
 
 	var account account_models.VendorAccount
 
@@ -68,6 +81,7 @@ func (gar *GormAccountRepository) WithTx(tx *gorm.DB) domain.AccountRepository {
 }
 
 func (gar *GormAccountRepository) Transaction(fn func(txRepo domain.AccountRepository) error) error {
+
 	tx := gar.db.Begin()
 	if tx.Error != nil {
 		log.Printf("Transaction begin error: %v", tx.Error)
