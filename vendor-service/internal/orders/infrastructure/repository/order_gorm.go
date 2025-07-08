@@ -8,6 +8,7 @@ import (
 	"marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/domain/models"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 )
 
@@ -52,11 +53,14 @@ func (gor *GormOrderRepository) FindAll(ctx context.Context, params dtos.OrderQu
 
 }
 
-func (gor *GormOrderRepository) FindById(ctx context.Context, id uuid.UUID, vendorId uuid.UUID) (*models.Order, error) {
+func (gor *GormOrderRepository) FindById(ctx context.Context, id uuid.UUID) (*models.Order, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "FindById")
+	defer span.End()
 
 	var order models.Order
 
-	if err := gor.db.WithContext(ctx).Preload("OrderItems").First(&order, "id = ? AND vendor_id = ?", id, vendorId).Error; err != nil {
+	if err := gor.db.WithContext(ctx).Preload("OrderItems").First(&order, "id = ?", id).Error; err != nil {
 		return nil, error_handler.ErrorHandler(err, "Error getting order data")
 	}
 
@@ -64,6 +68,9 @@ func (gor *GormOrderRepository) FindById(ctx context.Context, id uuid.UUID, vend
 }
 
 func (gor *GormOrderRepository) Patch(ctx context.Context, updatedOrder *models.Order) (*models.Order, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "Patch")
+	defer span.End()
 
 	res := gor.db.WithContext(ctx).Model(&models.Order{}).Where("id = ?", updatedOrder.Id).Updates(updatedOrder)
 
@@ -76,6 +83,20 @@ func (gor *GormOrderRepository) Patch(ctx context.Context, updatedOrder *models.
 	}
 
 	return updatedOrder, nil
+}
+
+func (gor *GormOrderRepository) Create(ctx context.Context, newOrder *models.Order, vendorId uuid.UUID) (*models.Order, error) {
+
+	ctx, span := tracer.Tracer.Start(ctx, "Create")
+	defer span.End()
+
+	newOrder.VendorId = vendorId
+
+	if err := gor.db.WithContext(ctx).Create(newOrder).Error; err != nil {
+		return nil, error_handler.ErrorHandler(err, "Error creating order")
+	}
+
+	return newOrder, nil
 }
 
 func (gor *GormOrderRepository) WithTx(tx *gorm.DB) domain.OrderRepository {
