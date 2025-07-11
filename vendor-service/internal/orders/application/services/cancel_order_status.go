@@ -6,6 +6,7 @@ import (
 	eventDomain "marketplace-vendor-service/vendor-service/internal/event/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/metrics"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
@@ -37,6 +38,8 @@ func CancelOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, ev
 		if err != nil {
 			return err
 		}
+
+		metrics.OrderStatusUpdatedCounter.WithLabelValues(canceledOrderDto.Status).Inc()
 
 		err = txEventRepo.CreateOutboxRecord(ctx, outbox)
 

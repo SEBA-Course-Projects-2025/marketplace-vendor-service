@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/orders/application/services"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/metrics"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 	"net/http"
 )
@@ -63,6 +64,7 @@ func (h *OrderHandler) PatchOrderStatusHandler(c *gin.Context) {
 		return
 	}
 
+	metrics.OrderStatusUpdatedCounter.WithLabelValues(statusReq.Status).Inc()
 	c.JSON(http.StatusOK, order)
 
 }

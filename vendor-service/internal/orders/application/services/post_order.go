@@ -6,6 +6,7 @@ import (
 	eventDomain "marketplace-vendor-service/vendor-service/internal/event/domain"
 	orderDomain "marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
+	"marketplace-vendor-service/vendor-service/internal/shared/metrics"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 )
 
@@ -41,6 +42,8 @@ func PostOrder(ctx context.Context, orderRepo orderDomain.OrderRepository, event
 		if err != nil {
 			return err
 		}
+
+		metrics.OrdersAddedCounter.Inc()
 
 		outbox, err := dtos.OrderStatusToOutbox(order, "vendor.updated.order", "vendor.order.events")
 
