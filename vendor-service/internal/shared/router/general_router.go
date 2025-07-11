@@ -15,11 +15,14 @@ import (
 	orderHandlers "marketplace-vendor-service/vendor-service/internal/orders/interfaces/handlers"
 	reviewInterfaces "marketplace-vendor-service/vendor-service/internal/reviews/interfaces"
 	reviewHandlers "marketplace-vendor-service/vendor-service/internal/reviews/interfaces/handlers"
+	"marketplace-vendor-service/vendor-service/internal/shared/logs"
 	"marketplace-vendor-service/vendor-service/internal/shared/middlewares"
 	"os"
 )
 
 func SetUpRouter(accountHandler *accountHandlers.AccountHandler, reviewHandler *reviewHandlers.ReviewHandler, orderHandler *orderHandlers.OrderHandler) *gin.Engine {
+
+	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
 
@@ -32,6 +35,8 @@ func SetUpRouter(accountHandler *accountHandlers.AccountHandler, reviewHandler *
 	}), gin.WrapH(promhttp.Handler()))
 
 	r.Use(otelgin.Middleware("vendor_service"))
+
+	r.Use(logs.GinLogger())
 
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
