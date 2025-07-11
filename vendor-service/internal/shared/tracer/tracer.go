@@ -43,7 +43,7 @@ func InitTracer() func(ctx context.Context) error {
 		log.Fatalf("Error creating OpenTelemetry resource: %v", err)
 	}
 
-	provider := trace.NewTracerProvider(trace.WithSyncer(exporter), trace.WithResource(otelRes))
+	provider := trace.NewTracerProvider(trace.WithBatcher(exporter), trace.WithResource(otelRes))
 
 	otel.SetTracerProvider(provider)
 
