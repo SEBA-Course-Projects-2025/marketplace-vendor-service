@@ -45,6 +45,8 @@ func PostOrder(ctx context.Context, orderRepo orderDomain.OrderRepository, event
 
 		metrics.OrdersAddedCounter.Inc()
 
+		metrics.OrderStatusUpdatedCounter.WithLabelValues(orderReq.Status).Inc()
+
 		outbox, err := dtos.OrderStatusToOutbox(order, "vendor.updated.order", "vendor.order.events")
 
 		if err != nil {
