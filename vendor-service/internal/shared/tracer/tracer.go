@@ -37,7 +37,7 @@ func InitTracer() func(ctx context.Context) error {
 		log.Fatalf("Error creating OpenTelemetry exporter: %v", err)
 	}
 
-	otelRes, err := resource.New(ctx, resource.WithAttributes(semconv.ServiceName("vendor-product-service")))
+	otelRes, err := resource.New(ctx, resource.WithAttributes(semconv.ServiceName("vendor-service")))
 
 	if err != nil {
 		log.Fatalf("Error creating OpenTelemetry resource: %v", err)
