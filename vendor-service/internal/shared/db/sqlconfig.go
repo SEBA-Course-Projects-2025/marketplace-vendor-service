@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"marketplace-vendor-service/vendor-service/internal/shared/logs"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 	"os"
 )
@@ -18,7 +20,18 @@ func ConnectDb() (*gorm.DB, error) {
 
 	dataSourceName := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require", host, user, password, dbname, port)
 
-	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
+	labels := map[string]string{
+		"job": "vendor_service_gorm",
+	}
+
+	lokiLogger := logs.NewLokiLogger(
+		labels,
+		logger.Info,
+	)
+
+	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{
+		Logger: lokiLogger,
+	})
 
 	if err != nil {
 		return nil, error_handler.ErrorHandler(err, err.Error())
