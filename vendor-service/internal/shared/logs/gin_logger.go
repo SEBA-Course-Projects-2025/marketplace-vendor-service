@@ -10,9 +10,11 @@ func GinLogger() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 
+		startingTime := time.Now()
+
 		c.Next()
 
-		latency := time.Since(time.Now())
+		latency := time.Since(startingTime)
 		status := c.Writer.Status()
 		method := c.Request.Method
 		path := c.Request.URL.Path

@@ -3,7 +3,6 @@ package tracer
 import (
 	"context"
 	"encoding/base64"
-	"github.com/joho/godotenv"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -18,10 +17,6 @@ var Tracer = otel.Tracer("vendor-service")
 func InitTracer() func(ctx context.Context) error {
 
 	ctx := context.Background()
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
 	stackId := os.Getenv("GRAFANA_TEMPO_STACK_ID")
 	apiKey := os.Getenv("GRAFANA_TEMPO_API_KEY")

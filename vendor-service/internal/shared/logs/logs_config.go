@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/joho/godotenv"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -22,10 +20,6 @@ type Payload struct {
 }
 
 func SendLogsToLoki(message string, labels map[string]string) error {
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
 	stackId := os.Getenv("GRAFANA_LOKI_STACK_ID")
 	apiKey := os.Getenv("GRAFANA_LOKI_API_KEY")

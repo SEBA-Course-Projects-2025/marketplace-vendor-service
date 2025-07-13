@@ -1,7 +1,6 @@
 package amqp
 
 import (
-	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 	"os"
@@ -57,7 +56,7 @@ func SetUpExchange(channel *amqp.Channel) error {
 	if err := channel.QueueBind("vendor.check.product.quantity", "vendor.check.product.quantity", "vendor.product.events", false, nil); err != nil {
 		return error_handler.ErrorHandler(err, err.Error())
 	}
-	
+
 	if err := channel.QueueBind("vendor.cancel.product.order", "vendor.cancel.product.order", "vendor.product.events", false, nil); err != nil {
 		return error_handler.ErrorHandler(err, err.Error())
 	}
@@ -104,10 +103,6 @@ func SetUpDlq(channel *amqp.Channel) error {
 }
 
 func ConnectAMQP() (*AMQPConfig, error) {
-
-	if err := godotenv.Load(); err != nil {
-		return nil, error_handler.ErrorHandler(err, err.Error())
-	}
 
 	amqpUrl := os.Getenv("AMQP_URL")
 

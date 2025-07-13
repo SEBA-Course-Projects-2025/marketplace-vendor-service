@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
@@ -10,10 +9,6 @@ import (
 )
 
 func ConnectDb() (*gorm.DB, error) {
-
-	if err := godotenv.Load(); err != nil {
-		return nil, error_handler.ErrorHandler(err, err.Error())
-	}
 
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
