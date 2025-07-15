@@ -2,15 +2,21 @@ package services
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	eventDomain "marketplace-vendor-service/vendor-service/internal/event/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
 	"marketplace-vendor-service/vendor-service/internal/shared/metrics"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
+	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 )
 
 func CancelOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eventRepo eventDomain.EventRepository, db *gorm.DB, canceledOrderDto dtos.CanceledOrderEventDto) error {
+
+	logrus.WithFields(logrus.Fields{
+		"orderId": canceledOrderDto.OrderId,
+	}).Info("Starting CancelOrderStatus application service")
 
 	ctx, span := tracer.Tracer.Start(ctx, "CancelOrderStatus")
 	defer span.End()
@@ -36,7 +42,7 @@ func CancelOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, ev
 		outbox, err := dtos.OrderStatusToOutbox(updatedOrder, "vendor.updated.order", "vendor.order.events")
 
 		if err != nil {
-			return err
+			return error_handler.ErrorHandler(err, err.Error())
 		}
 
 		metrics.OrderStatusUpdatedCounter.WithLabelValues(canceledOrderDto.Status).Inc()
@@ -52,7 +58,7 @@ func CancelOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, ev
 		outbox, err = dtos.CanceledOrderProductsToOutbox(canceledOrderProducts, "vendor.cancel.product.order", "vendor.product.events")
 
 		if err != nil {
-			return err
+			return error_handler.ErrorHandler(err, err.Error())
 		}
 
 		err = txEventRepo.CreateOutboxRecord(ctx, outbox)
@@ -60,6 +66,10 @@ func CancelOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, ev
 		if err != nil {
 			return err
 		}
+
+		logrus.WithFields(logrus.Fields{
+			"orderId": canceledOrderDto.OrderId,
+		}).Info("Successfully canceled order")
 
 		return nil
 

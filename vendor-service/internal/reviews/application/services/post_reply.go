@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	accountDomain "marketplace-vendor-service/vendor-service/internal/account/domain"
 	"marketplace-vendor-service/vendor-service/internal/reviews/domain"
@@ -11,6 +12,11 @@ import (
 )
 
 func PostReply(ctx context.Context, reviewRepo domain.ReviewRepository, accountRepo accountDomain.AccountRepository, db *gorm.DB, commentReq dtos.CommentDto, vendorId uuid.UUID, reviewId uuid.UUID) (dtos.PostReplyDto, error) {
+
+	logrus.WithFields(logrus.Fields{
+		"reviewId": reviewId,
+		"vendorId": vendorId,
+	}).Info("Starting PostReply application service")
 
 	ctx, span := tracer.Tracer.Start(ctx, "PostReply")
 	defer span.End()
@@ -43,6 +49,11 @@ func PostReply(ctx context.Context, reviewRepo domain.ReviewRepository, accountR
 	}); err != nil {
 		return dtos.PostReplyDto{}, err
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"reviewId": reviewId,
+		"vendorId": vendorId,
+	}).Info("Successfully created new reply by reviewId and vendorId")
 
 	return replyResponse, nil
 }

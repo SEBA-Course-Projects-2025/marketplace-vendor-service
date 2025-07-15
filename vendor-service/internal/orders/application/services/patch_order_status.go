@@ -3,14 +3,21 @@ package services
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	eventDomain "marketplace-vendor-service/vendor-service/internal/event/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/domain"
 	"marketplace-vendor-service/vendor-service/internal/orders/dtos"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
+	"marketplace-vendor-service/vendor-service/internal/shared/utils/error_handler"
 )
 
 func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eventRepo eventDomain.EventRepository, db *gorm.DB, statusReq dtos.StatusRequestDto, id uuid.UUID, vendorId uuid.UUID) (dtos.OneOrderResponse, error) {
+
+	logrus.WithFields(logrus.Fields{
+		"orderId":  id,
+		"vendorId": vendorId,
+	}).Info("Starting PatchOrderStatus application service")
 
 	ctx, span := tracer.Tracer.Start(ctx, "PatchOrderStatus")
 	defer span.End()
@@ -39,7 +46,7 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eve
 		outbox, err := dtos.OrderStatusToOutbox(updatedOrder, "vendor.updated.order", "vendor.order.events")
 
 		if err != nil {
-			return err
+			return error_handler.ErrorHandler(err, err.Error())
 		}
 
 		err = txEventRepo.CreateOutboxRecord(ctx, outbox)
@@ -53,7 +60,13 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eve
 		return nil
 
 	}); err != nil {
-		return dtos.OneOrderResponse{}, err
+		return dtos.OneOrderResponse{}, error_handler.ErrorHandler(err, err.Error())
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"orderId":  id,
+		"vendorId": vendorId,
+	}).Info("Successfully partially modified order status by orderId and vendorId")
+
 	return orderResponse, nil
 }
