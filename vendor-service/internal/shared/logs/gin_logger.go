@@ -3,6 +3,7 @@ package logs
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"time"
 )
 
@@ -28,11 +29,11 @@ func GinLogger() gin.HandlerFunc {
 			"path":   path,
 		}
 
-		go func() {
-			if err := SendLogsToLoki(logLine, labels); err != nil {
-				fmt.Println("Loki Gin logs error:", err)
-			}
-		}()
+		select {
+		case logsQueue <- logEntry{logLine, labels}:
+		default:
+			log.Printf("Logs queue is full, dropping log: %s", logLine)
+		}
 
 	}
 

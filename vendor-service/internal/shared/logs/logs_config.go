@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+var client = &http.Client{Timeout: 5 * time.Second}
+
 type LokiStream struct {
 	Stream map[string]string `json:"stream"`
 	Values [][2]string       `json:"values"`
@@ -52,7 +54,6 @@ func SendLogsToLoki(message string, labels map[string]string) error {
 	encodedAuth := base64.StdEncoding.EncodeToString([]byte(auth))
 	request.Header.Set("Authorization", "Basic "+encodedAuth)
 
-	client := &http.Client{Timeout: 5 * time.Second}
 	response, err := client.Do(request)
 	if err != nil {
 		return err
