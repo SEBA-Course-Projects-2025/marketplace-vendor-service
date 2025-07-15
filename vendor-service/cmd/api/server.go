@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"log"
 	accountRepository "marketplace-vendor-service/vendor-service/internal/account/infrastructure/repository"
 	accountHandlers "marketplace-vendor-service/vendor-service/internal/account/interfaces/handlers"
@@ -15,6 +16,7 @@ import (
 	reviewHandlers "marketplace-vendor-service/vendor-service/internal/reviews/interfaces/handlers"
 	"marketplace-vendor-service/vendor-service/internal/shared/amqp"
 	handlers "marketplace-vendor-service/vendor-service/internal/shared/handler"
+	"marketplace-vendor-service/vendor-service/internal/shared/logs"
 	"marketplace-vendor-service/vendor-service/internal/shared/tracer"
 
 	"marketplace-vendor-service/vendor-service/internal/shared/db"
@@ -40,7 +42,15 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	
+
+	logrusLabels := map[string]string{
+		"job": "vendor_service_logrus",
+	}
+
+	logrusHook := logs.NewLokiLogrusLogger(logrusLabels)
+
+	logrus.AddHook(logrusHook)
+
 	newTracer := tracer.InitTracer()
 	defer func() {
 		if err := newTracer(context.Background()); err != nil {
