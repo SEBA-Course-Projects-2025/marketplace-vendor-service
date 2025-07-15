@@ -301,3 +301,13 @@ func CanceledOrderProductsToOutbox(canceledOrderProducts []CanceledOrderItemDto,
 	}, nil
 
 }
+
+var AllowedStatuses = map[string]struct{}{
+	"pending":   {},
+	"confirmed": {},
+	"shipped":   {},
+	"delivered": {},
+	"completed": {},
+	"cancelled": {},
+	"declined":  {},
+}

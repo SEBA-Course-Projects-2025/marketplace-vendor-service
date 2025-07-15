@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -33,6 +34,10 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eve
 
 		if err != nil {
 			return err
+		}
+
+		if _, ok := dtos.AllowedStatuses[statusReq.Status]; !ok {
+			return error_handler.ErrorHandler(fmt.Errorf("invalid order status: %s", statusReq.Status), "invalid order status")
 		}
 
 		existingOrder.Status = statusReq.Status
