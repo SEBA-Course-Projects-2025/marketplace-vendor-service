@@ -58,7 +58,7 @@ func PatchReply(ctx context.Context, reviewRepo domain.ReviewRepository, comment
 		return nil
 
 	}); err != nil {
-		return dtos.PostReplyDto{}, error_handler.ErrorHandler(err, err.Error())
+		return dtos.PostReplyDto{}, err
 	}
 
 	logrus.WithFields(logrus.Fields{

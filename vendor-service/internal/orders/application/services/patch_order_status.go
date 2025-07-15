@@ -60,7 +60,7 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eve
 		return nil
 
 	}); err != nil {
-		return dtos.OneOrderResponse{}, error_handler.ErrorHandler(err, err.Error())
+		return dtos.OneOrderResponse{}, err
 	}
 
 	logrus.WithFields(logrus.Fields{
