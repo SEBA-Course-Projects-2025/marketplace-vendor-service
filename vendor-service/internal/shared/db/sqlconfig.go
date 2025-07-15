@@ -24,7 +24,7 @@ func ConnectDb() (*gorm.DB, error) {
 		"job": "vendor_service_gorm",
 	}
 
-	lokiLogger := logs.NewLokiLogger(
+	lokiLogger := logs.NewLokiGormLogger(
 		labels,
 		logger.Info,
 	)
