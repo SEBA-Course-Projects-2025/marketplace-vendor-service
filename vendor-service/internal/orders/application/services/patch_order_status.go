@@ -48,6 +48,22 @@ func PatchOrderStatus(ctx context.Context, orderRepo domain.OrderRepository, eve
 			return err
 		}
 
+		if statusReq.Status == "declined" {
+			declinedOrderProducts := dtos.CanceledOrderItemsToDto(updatedOrder)
+
+			outbox, err := dtos.CanceledOrderProductsToOutbox(declinedOrderProducts, "vendor.cancel.product.order", "vendor.product.events")
+
+			if err != nil {
+				return error_handler.ErrorHandler(err, err.Error())
+			}
+
+			err = txEventRepo.CreateOutboxRecord(ctx, outbox)
+
+			if err != nil {
+				return err
+			}
+		}
+
 		outbox, err := dtos.OrderStatusToOutbox(updatedOrder, "vendor.updated.order", "vendor.order.events")
 
 		if err != nil {
